@@ -1,6 +1,7 @@
 import pymysql
 import numpy as np
 import pandas as pd
+from timeseries_bagging import TS_Bagging
 
 con = pymysql.connect(
         host='localhost', 
@@ -19,9 +20,15 @@ Bagging에서 데이터 추세, 계절, 기타로 분해 후 기타 데이터 �
 Bagging 에서 반환 받은 데이터에 추세, 계절 더한 결과 반환
 """
 def main():
-    exog_df = load_exog_data()
+    exog_df, exog_origin_df = load_exog_data('exog_data'), load_exog_data('exog_origin_data')
     passenger_df = load_passenger_data()
-    region_arrive_df, region_total_df, region_departure_df = load_region_data()
+    # region_arrive_df, region_total_df, region_departure_df = load_region_data()
+
+    bagging = TS_Bagging(passenger_df['arrive'], exog_df)
+    pred = bagging.forecast()
+
+ 
+
 
 def load_region_data():
     # 데이터 프레임 구성
@@ -77,14 +84,14 @@ def load_passenger_data():
 
     return passenger_df
 
-def load_exog_data():
+def load_exog_data(table):
     # 데이터 프레임 구성
     # COLUMNS: 각 데이터 name
     # INDEX: 연도
     # TUPLE: 해당 년도 데이터의 값
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    col_sql = 'SELECT name FROM exog_data GROUP BY name;'
-    idx_sql = 'SELECT date FROM exog_data GROUP BY date;'  
+    col_sql = 'SELECT name FROM {} GROUP BY name;'.format(table)
+    idx_sql = 'SELECT date FROM {} GROUP BY date;'.format(table)  
     
     #DataFrame index, columns
     cursor.execute(col_sql)
@@ -95,7 +102,7 @@ def load_exog_data():
         
     #데이터 저장
     for col in exog_df.columns:
-        tuple_sql = 'SELECT value FROM exog_data WHERE name = %s ORDER BY date;'
+        tuple_sql = 'SELECT value FROM {} WHERE name = %s ORDER BY date;'.format(table)
         cursor.execute(tuple_sql, col)
         value = [v['value'] for v in cursor.fetchall()]
         exog_df[col] = value
