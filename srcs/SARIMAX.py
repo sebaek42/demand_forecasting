@@ -32,19 +32,20 @@ class Sarimax:
         # 신뢰 구간
         confidence_intervals = []
 
-        for new_ob in self.test_resid:
+        for new_ob, exog_idx in zip(self.test_resid, self.test_exog.index):
             # 1 period 씩 예측을 수행한다.
-            fc, conf = self.forecast_one_step(model)
+            exog_df = pd.DataFrame(self.test_exog.loc[exog_idx]).T
+            fc, conf = self.forecast_one_step(model, exog_df)
             pred.append(fc)
             confidence_intervals.append(conf)
 
             # Updates the existing model with a small number of MLE steps
-            model.update(new_ob)
+            model.update(new_ob, exog_df)
         
         return pred, confidence_intervals
 
-    def forecast_one_step(self, model):
-        fc, conf_int = model.predict(n_periods=1, return_conf_int=True)
+    def forecast_one_step(self, model, new_exog):
+        fc, conf_int = model.predict(n_periods=1, X=new_exog, return_conf_int=True)
         return (
             fc.tolist()[0],
             np.asarray(conf_int).tolist()[0])     
@@ -55,9 +56,10 @@ class Sarimax:
         plt.show()
         print(round(((pred-test)/test)*100, 2))
 
-    # 외생 변수 줄 것
+    # 최대 1년
     def sarimax_predict(self, n_periods=6):
         model = self.auto_sarimax()
-        pred = model.predict(n_periods=n_periods)
-
-        return pred
+        pred_exog = self.test_exog.iloc[len(self.test_exog)-n_periods:]
+        pred = model.predict(n_periods=n_periods, X=pred_exog)
+        pred += self.test_other[len(self.test_other)-n_periods:]
+        return pred.values

@@ -49,5 +49,6 @@ class TS_Bagging:
         sarimax = Sarimax(bs_data[2][0][0], self.test_resid, self.train_other, 
                     self.test_other, bs_data[2][1]['y'], self.test_exog)
         
-        pred = sarimax.sarimax_predict()
-        return pred
+    
+        sarimax_pred = sarimax.sarimax_predict()
+        return sarimax_pred

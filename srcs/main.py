@@ -1,6 +1,7 @@
 import pymysql
 import numpy as np
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 from timeseries_bagging import TS_Bagging
 
 con = pymysql.connect(
@@ -22,13 +23,46 @@ Bagging 에서 반환 받은 데이터에 추세, 계절 더한 결과 반환
 def main():
     exog_df, exog_origin_df = load_exog_data('exog_data'), load_exog_data('exog_origin_data')
     passenger_df = load_passenger_data()
-    # region_arrive_df, region_total_df, region_departure_df = load_region_data()
+    region_arrive_df, region_total_df, region_departure_df = load_region_data()
 
-    bagging = TS_Bagging(passenger_df['arrive'], exog_df)
-    pred = bagging.forecast()
+    # 인천 국제 공항 출발, 도착, 총계 예측
+    for _type in passenger_df.columns:
+        bagging = TS_Bagging(passenger_df[_type], exog_df)
+        predict = bagging.forecast()
+        _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+        save_data(predict, _date, _type)
 
- 
+    # 지역별 인천 국제 공항 출발, 도착, 총계 예측
+    for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
+        for region in region_df.columns:
+            bagging = TS_Bagging(region_df[region], exog_df)
+            predict = bagging.forecast()
+            _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+            save_data(predict, _date, _type, region=region)
+            break
 
+
+def save_data(predict, _date, _type, region):
+    if region:
+        curs = con.cursor()
+        insert_sql = """INSERT INTO forecasted_data (date, value, type, region)
+                VALUES (%s, %s, %s, %s)"""
+        delete_sql = """DELETE FROM forecasted_data WHERE type = %s and region = %s
+        """
+        curs.execute(delete_sql, (_type, region))
+        data = list(zip( _date, predict, [_type]*len(predict), [region] * len(predict)))
+        curs.executemany(insert_sql, data)
+        con.commit()
+    else:
+        curs = con.cursor()
+        insert_sql = """INSERT INTO forecasted_data (date, value, type)
+                VALUES (%s, %s, %s)"""
+        delete_sql = """DELETE FROM forecasted_data WHERE type = '{}' and region IS NULL
+        """.format(_type)
+        curs.execute(delete_sql)
+        data = list(zip( _date, predict, [_type]*len(predict)))
+        curs.executemany(insert_sql, data)
+        con.commit()
 
 def load_region_data():
     # 데이터 프레임 구성
