@@ -28,7 +28,23 @@ m8 = '/Users/baegseungho/tmp_x/월_중국연휴수.xlsx'
 m9 = '/Users/baegseungho/tmp_x/월_코스피.xlsx'
 m10 = '/Users/baegseungho/tmp_x/월_한국연휴수.xlsx'
 m11 = '/Users/baegseungho/tmp_x/월_환율.xlsx'
+m12 = '/Users/baegseungho/tmp_x/월_전세계코로나신규확진자.xlsx'
+
+# m1 = '/Users/baegseungho/normalized/월_나스닥지수.xlsx'
+# m2 = '/Users/baegseungho/normalized/월_민간소비증감율.xlsx'
+# m3 = '/Users/baegseungho/normalized/월_소비자물가지수.xlsx'
+# m4 = '/Users/baegseungho/normalized/월_수출액.xlsx'
+# m5 = '/Users/baegseungho/normalized/월_실업률.xlsx'
+# m6 = '/Users/baegseungho/normalized/월_싱가포르항공유.xlsx'
+# m7 = '/Users/baegseungho/normalized/월_일본연휴수.xlsx'
+# m8 = '/Users/baegseungho/normalized/월_중국연휴수.xlsx'
+# m9 = '/Users/baegseungho/normalized/월_코스피.xlsx'
+# m10 = '/Users/baegseungho/normalized/월_한국연휴수.xlsx'
+# m11 = '/Users/baegseungho/normalized/월_환율.xlsx'
+# m12 = '/Users/baegseungho/normalized/월_전세계코로나신규확진자.xlsx'
 y1 = '/Users/baegseungho/tmp_y/월_전체승객.xlsx'
+
+
 
 # split a multivariate sequence into samples
 def split_sequences(sequences, n_steps):
@@ -90,11 +106,107 @@ def prepare_data():
     data = np.array(df)
     in_seq11 = data[:,1]
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
+    df = pd.read_excel(m12, engine='openpyxl')
+    data = np.array(df)
+    in_seq12 = data[:,1]
+    in_seq12 = in_seq12.reshape((len(in_seq12), 1))
     df = pd.read_excel(y1, engine='openpyxl')
     data = np.array(df)
     out_seq = data[:,1]
     out_seq = out_seq.reshape((len(out_seq), 1))
-    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, out_seq))
+    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
+    return dataset
+
+def prepare_data_normalized():
+    df = pd.read_excel(m1, engine='openpyxl')
+    data = np.array(df)
+    in_seq1 = data[:,1]
+    norm = np.linalg.norm(in_seq1)
+    in_seq1 = in_seq1/norm
+    in_seq1 = in_seq1.reshape((len(in_seq1), 1))
+
+    df = pd.read_excel(m2, engine='openpyxl')
+    data = np.array(df)
+    in_seq2 = data[:,1]
+    norm = np.linalg.norm(in_seq2)
+    in_seq2 = in_seq2/norm
+    in_seq2 = in_seq2.reshape((len(in_seq2), 1))
+
+    df = pd.read_excel(m3, engine='openpyxl')
+    data = np.array(df)
+    in_seq3 = data[:,1]
+    norm = np.linalg.norm(in_seq3)
+    in_seq3 = in_seq3/norm
+    in_seq3 = in_seq3.reshape((len(in_seq3), 1))
+
+    df = pd.read_excel(m4, engine='openpyxl')
+    data = np.array(df)
+    in_seq4 = data[:,1]
+    norm = np.linalg.norm(in_seq4)
+    in_seq4 = in_seq4/norm
+    in_seq4 = in_seq4.reshape((len(in_seq4), 1))
+
+    df = pd.read_excel(m5, engine='openpyxl')
+    data = np.array(df)
+    in_seq5 = data[:,1]
+    norm = np.linalg.norm(in_seq5)
+    in_seq5 = in_seq5/norm
+    in_seq5 = in_seq5.reshape((len(in_seq5), 1))
+
+    df = pd.read_excel(m6, engine='openpyxl')
+    data = np.array(df)
+    in_seq6 = data[:,1]
+    norm = np.linalg.norm(in_seq6)
+    in_seq6 = in_seq6/norm
+    in_seq6 = in_seq6.reshape((len(in_seq6), 1))
+
+    df = pd.read_excel(m7, engine='openpyxl')
+    data = np.array(df)
+    in_seq7 = data[:,1]
+    norm = np.linalg.norm(in_seq7)
+    in_seq7 = in_seq7/norm
+    in_seq7 = in_seq7.reshape((len(in_seq7), 1))
+
+    df = pd.read_excel(m8, engine='openpyxl')
+    data = np.array(df)
+    in_seq8 = data[:,1]
+    norm = np.linalg.norm(in_seq8)
+    in_seq8 = in_seq1/norm
+    in_seq8 = in_seq8.reshape((len(in_seq8), 1))
+
+    df = pd.read_excel(m9, engine='openpyxl')
+    data = np.array(df)
+    in_seq9 = data[:,1]
+    norm = np.linalg.norm(in_seq9)
+    in_seq9 = in_seq9/norm
+    in_seq9 = in_seq9.reshape((len(in_seq9), 1))
+
+    df = pd.read_excel(m10, engine='openpyxl')
+    data = np.array(df)
+    in_seq10 = data[:,1]
+    norm = np.linalg.norm(in_seq10)
+    in_seq10 = in_seq10/norm
+    in_seq10 = in_seq10.reshape((len(in_seq10), 1))
+
+    df = pd.read_excel(m11, engine='openpyxl')
+    data = np.array(df)
+    in_seq11 = data[:,1]
+    norm = np.linalg.norm(in_seq11)
+    in_seq11 = in_seq11/norm
+    in_seq11 = in_seq11.reshape((len(in_seq11), 1))
+
+    df = pd.read_excel(m12, engine='openpyxl')
+    data = np.array(df)
+    in_seq12 = data[:,1]
+    norm = np.linalg.norm(in_seq12)
+    in_seq12 = in_seq12/norm
+    in_seq12 = in_seq12.reshape((len(in_seq12), 1))
+
+    df = pd.read_excel(y1, engine='openpyxl')
+    data = np.array(df)
+    out_seq = data[:,1]
+    out_seq = out_seq.reshape((len(out_seq), 1))
+    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
     return dataset
 
 def CNN_forecast(trainX, trainy, testX, n_steps, n_features):
@@ -136,8 +248,10 @@ def walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features):
     error = mean_absolute_error(testy, predictions)
     return error, testy, predictions
 
-
+#############################################################
 dataset = prepare_data()
+# dataset = prepare_data_normalized()
+#############################################################
 # choose a number of time steps
 n_steps = 3
 # convert into input/output

@@ -24,6 +24,8 @@ m8 = '/Users/baegseungho/tmp_x/월_중국연휴수.xlsx'
 m9 = '/Users/baegseungho/tmp_x/월_코스피.xlsx'
 m10 = '/Users/baegseungho/tmp_x/월_한국연휴수.xlsx'
 m11 = '/Users/baegseungho/tmp_x/월_환율.xlsx'
+m12 = '/Users/baegseungho/tmp_x/월_전세계코로나신규확진자.xlsx'
+
 # m1 = '/Users/baegseungho/normalized/월_나스닥지수.xlsx'
 # m2 = '/Users/baegseungho/normalized/월_민간소비증감율.xlsx'
 # m3 = '/Users/baegseungho/normalized/월_소비자물가지수.xlsx'
@@ -35,6 +37,7 @@ m11 = '/Users/baegseungho/tmp_x/월_환율.xlsx'
 # m9 = '/Users/baegseungho/normalized/월_코스피.xlsx'
 # m10 = '/Users/baegseungho/normalized/월_한국연휴수.xlsx'
 # m11 = '/Users/baegseungho/normalized/월_환율.xlsx'
+# m12 = '/Users/baegseungho/normalized/월_전세계코로나신규확진자.xlsx'
 
 y1 = '/Users/baegseungho/tmp_y/월_전체승객.xlsx'
 
@@ -98,11 +101,15 @@ def prepare_data():
     data = np.array(df)
     in_seq11 = data[:,1]
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
+    df = pd.read_excel(m12, engine='openpyxl')
+    data = np.array(df)
+    in_seq12 = data[:,1]
+    in_seq12 = in_seq12.reshape((len(in_seq12), 1))
     df = pd.read_excel(y1, engine='openpyxl')
     data = np.array(df)
     out_seq = data[:,1]
     out_seq = out_seq.reshape((len(out_seq), 1))
-    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, out_seq))
+    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
     return dataset
 
 def prepare_data_normalized():
@@ -182,11 +189,19 @@ def prepare_data_normalized():
     norm = np.linalg.norm(in_seq11)
     in_seq11 = in_seq11/norm
     in_seq11 = in_seq11.reshape((len(in_seq11), 1))
+
+    df = pd.read_excel(m12, engine='openpyxl')
+    data = np.array(df)
+    in_seq12 = data[:,1]
+    norm = np.linalg.norm(in_seq12)
+    in_seq12 = in_seq12/norm
+    in_seq12 = in_seq12.reshape((len(in_seq12), 1))
+
     df = pd.read_excel(y1, engine='openpyxl')
     data = np.array(df)
     out_seq = data[:,1]
     out_seq = out_seq.reshape((len(out_seq), 1))
-    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, out_seq))
+    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
     return dataset
 
 def LSTM_forecast(trainX, trainy, testX, n_steps, n_features):
@@ -227,17 +242,21 @@ def walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features):
     error = mean_absolute_error(testy, predictions)
     return error, testy, predictions
 
-## 일반 데이터 로드
+##################데이터 로드########################
 # dataset = prepare_data_normalized()
 dataset = prepare_data()
-# 윈도우 크기
+##################################################
+
+##################윈도우 크기########################
 n_steps = 3
+##################################################
 # input/output 나누기 + 슬라이딩 윈도우
 X, y = split_sequences(dataset, n_steps)
 # 몇 종류의 데이터인지
 n_features = X.shape[2]
-# 뒤에서부터 n개 셋을 테스트로 쓰겠다
+############# 뒤에서부터 n개 셋을 테스트로 쓰겠다##########
 n = 18
+###################################################
 trainX = X[0:-n].astype(float)
 trainy = y[0:-n].astype(float)
 testX = X[-n:].astype(float)
