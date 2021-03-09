@@ -14,7 +14,7 @@ engine = create_engine("mysql+mysqldb://root:"+"admin"+"@localhost/airport", enc
 conn = engine.connect()
 
 def region_to_sql():
-    path = './data/forecasting_data/region_data/'
+    path = '../data/forecasting_data/region_data/'
     region_files = os.listdir(path)
     region_df = pd.DataFrame(columns=['date', 'region', 'type', 'value'])
     for region_file in region_files:
@@ -40,7 +40,7 @@ def region_to_sql():
         
 
 def passenger_to_sql():
-    path = './data/forecasting_data/passenger_data/'
+    path = '../data/forecasting_data/passenger_data/'
     passenger_files = os.listdir(path)
     passenger_df = pd.DataFrame(columns=['date', 'type', 'value'])
 
@@ -57,7 +57,7 @@ def passenger_to_sql():
     passenger_df.to_sql(name='passenger_data', if_exists='append', con=engine, index=False)
 
 def exog_to_sql():
-    path = './data/forecasting_data/exog_data/'
+    path = '../data/forecasting_data/exog_data/'
     exog_files = os.listdir(path)
     exog_df = pd.DataFrame(columns=['date', 'name', 'value'])
 
@@ -65,10 +65,29 @@ def exog_to_sql():
         cur_df = pd.DataFrame(columns=['date', 'name', 'value'])
         data = pd.read_excel(path + exog_file, usecols=[0, 1])
         name = (exog_file.split('.')[0]).split('_')[1]
-        cur_df['date'] = data.date
-        cur_df['name'] = name
-        cur_df['value'] = data['특징값']
 
+        cur_df['date'] = data[data.columns[0]]
+        cur_df['name'] = name
+        cur_df['value'] = data[data.columns[1]]
         exog_df = pd.concat([exog_df, cur_df], axis=0, ignore_index=True)
-    
+
     exog_df.to_sql(name='exog_data', con=engine, if_exists='append', index=False)  
+
+def exog_origin_to_sql():
+    path = '../data/forecasting_data/exog_data_origin/'
+    exog_files = os.listdir(path)
+    exog_df = pd.DataFrame(columns=['date', 'name', 'value'])
+
+    for exog_file in exog_files:
+        cur_df = pd.DataFrame(columns=['date', 'name', 'value'])
+        data = pd.read_excel(path + exog_file, usecols=[0, 1])
+        name = (exog_file.split('.')[0]).split('_')[1]
+
+        cur_df['date'] = data[data.columns[0]]
+        cur_df['name'] = name
+        cur_df['value'] = data[data.columns[1]]
+        print(cur_df)
+        exog_df = pd.concat([exog_df, cur_df], axis=0, ignore_index=True)
+
+    # print(exog_df)
+    exog_df.to_sql(name='exog_origin_data', con=engine, if_exists='append', index=False)  
