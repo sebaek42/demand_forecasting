@@ -40,6 +40,8 @@ class Sarimax:
             confidence_intervals.append(conf)
 
             # Updates the existing model with a small number of MLE steps
+            print('>expected=%.1f, predicted=%.1f' % (new_ob, fc))
+            print('오차율=%.1f ' % (((new_ob - fc) / new_ob) * 100))
             model.update(new_ob, exog_df)
         
         return pred, confidence_intervals

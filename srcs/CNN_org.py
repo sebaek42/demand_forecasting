@@ -1,60 +1,53 @@
-# multivariate lstm example + walk_forward_validation
 import os
 import datetime
 import pandas as pd
 import numpy as np
 from numpy import array
-from numpy import hstack
 from numpy import asarray
+from numpy import hstack
 from keras.models import Sequential
-from keras.layers import LSTM
+from keras.models import Model
+from keras.layers import Input
 from keras.layers import Dense
+from keras.layers import Flatten
+from keras.layers.convolutional import Conv1D
+from keras.layers.convolutional import MaxPooling1D
+from pandas import DataFrame
+from pandas import concat
 from sklearn.metrics import mean_absolute_error
 from matplotlib import pyplot
 
+m1 = '../data/forecasting_data/exog_data_origin/월_나스닥지수.xlsx'
+m2 = '../data/forecasting_data/exog_data_origin/월_민간소비증감율.xlsx'
+m3 = '../data/forecasting_data/exog_data_origin/월_소비자물가지수.xlsx'
+m4 = '../data/forecasting_data/exog_data_origin/월_수출액.xlsx'
+m5 = '../data/forecasting_data/exog_data_origin/월_실업률.xlsx'
+m6 = '../data/forecasting_data/exog_data_origin/월_싱가포르항공유.xlsx'
+m7 = '../data/forecasting_data/exog_data_origin/월_일본연휴수.xlsx'
+m8 = '../data/forecasting_data/exog_data_origin/월_중국연휴수.xlsx'
+m9 = '../data/forecasting_data/exog_data_origin/월_코스피.xlsx'
+m10 = '../data/forecasting_data/exog_data_origin/월_한국연휴수.xlsx'
+m11 = '../data/forecasting_data/exog_data_origin/월_환율.xlsx'
+m12 = '../data/forecasting_data/exog_data_origin/월_코로나신규확진자.xlsx'
+y1 = '../data/forecasting_data/passenger_data/월_전체승객.xlsx'
 
-m1 = '/Users/baegseungho/tmp_x/월_나스닥지수.xlsx'
-m2 = '/Users/baegseungho/tmp_x/월_민간소비증감율.xlsx'
-m3 = '/Users/baegseungho/tmp_x/월_소비자물가지수.xlsx'
-m4 = '/Users/baegseungho/tmp_x/월_수출액.xlsx'
-m5 = '/Users/baegseungho/tmp_x/월_실업률.xlsx'
-m6 = '/Users/baegseungho/tmp_x/월_싱가포르항공유.xlsx'
-m7 = '/Users/baegseungho/tmp_x/월_일본연휴수.xlsx'
-m8 = '/Users/baegseungho/tmp_x/월_중국연휴수.xlsx'
-m9 = '/Users/baegseungho/tmp_x/월_코스피.xlsx'
-m10 = '/Users/baegseungho/tmp_x/월_한국연휴수.xlsx'
-m11 = '/Users/baegseungho/tmp_x/월_환율.xlsx'
-m12 = '/Users/baegseungho/tmp_x/월_전세계코로나신규확진자.xlsx'
 
-# m1 = '/Users/baegseungho/normalized/월_나스닥지수.xlsx'
-# m2 = '/Users/baegseungho/normalized/월_민간소비증감율.xlsx'
-# m3 = '/Users/baegseungho/normalized/월_소비자물가지수.xlsx'
-# m4 = '/Users/baegseungho/normalized/월_수출액.xlsx'
-# m5 = '/Users/baegseungho/normalized/월_실업률.xlsx'
-# m6 = '/Users/baegseungho/normalized/월_싱가포르항공유.xlsx'
-# m7 = '/Users/baegseungho/normalized/월_일본연휴수.xlsx'
-# m8 = '/Users/baegseungho/normalized/월_중국연휴수.xlsx'
-# m9 = '/Users/baegseungho/normalized/월_코스피.xlsx'
-# m10 = '/Users/baegseungho/normalized/월_한국연휴수.xlsx'
-# m11 = '/Users/baegseungho/normalized/월_환율.xlsx'
-# m12 = '/Users/baegseungho/normalized/월_전세계코로나신규확진자.xlsx'
-
-y1 = '/Users/baegseungho/tmp_y/월_전체승객.xlsx'
 
 # split a multivariate sequence into samples
 def split_sequences(sequences, n_steps):
-	X, y = list(), list()
-	for i in range(len(sequences)):
-		# find the end of this pattern
-		end_ix = i + n_steps
-		# check if we are beyond the dataset
-		if end_ix > len(sequences):
-			break
-		# gather input and output parts of the pattern
-		seq_x, seq_y = sequences[i:end_ix, :-1], sequences[end_ix-1, -1]
-		X.append(seq_x)
-		y.append(seq_y)
-	return array(X), array(y)
+    X, y = list(), list()
+    for i in range(len(sequences)):
+        # find the end of this pattern
+        end_ix = i + n_steps
+        # check if we are beyond the dataset
+        if end_ix > len(sequences):
+            break
+        # gather input and output parts of the pattern
+        seq_x, seq_y = sequences[i:end_ix, :-1], sequences[end_ix-1, -1]
+        print(seq_x)
+        X.append(seq_x)
+        y.append(seq_y)
+    return array(X), array(y)
 
 def prepare_data():
     df = pd.read_excel(m1, engine='openpyxl')
@@ -110,6 +103,7 @@ def prepare_data():
     out_seq = data[:,1]
     out_seq = out_seq.reshape((len(out_seq), 1))
     dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
+    
     return dataset
 
 def prepare_data_normalized():
@@ -204,16 +198,18 @@ def prepare_data_normalized():
     dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
     return dataset
 
-def LSTM_forecast(trainX, trainy, testX, n_steps, n_features):
-    # fit model
+def CNN_forecast(trainX, trainy, testX, n_steps, n_features):
     trainX = asarray(trainX)
     trainy = asarray(trainy)
     model = Sequential()
-    model.add(LSTM(50, activation='relu', input_shape=(n_steps, n_features)))
+    model.add(Conv1D(filters=64, kernel_size=2, activation='relu', input_shape=(n_steps, n_features)))
+    model.add(MaxPooling1D(pool_size=2))
+    model.add(Flatten())
+    model.add(Dense(50, activation='relu'))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
-    model.fit(trainX, trainy, epochs=200, verbose=0)
-    # make a one-step prediction
+    # fit model
+    model.fit(trainX, trainy, epochs=1000, verbose=0)
     yhat = model.predict(testX, verbose=0)
     yhat = np.transpose(yhat)
     yhat = yhat[0]
@@ -221,7 +217,6 @@ def LSTM_forecast(trainX, trainy, testX, n_steps, n_features):
 
 def walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features):
     predictions = list()
-    # seed history with training dataset
     history_x = [x for x in trainX]
     history_y = [y for y in trainy]
     # step over each time-step in the test set
@@ -229,7 +224,7 @@ def walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features):
         # split test row into input and output columns
         test_X, test_y = testX[i:i+1], testy[i:i+1]
         # fit model on history and make a prediction
-        yhat = LSTM_forecast(history_x, history_y, test_X, n_steps, n_features)
+        yhat = CNN_forecast(history_x, history_y, test_X, n_steps, n_features)
         # store forecast in list of predictions
         predictions.append(yhat)
         # add actual observation to history for the next loop
@@ -242,30 +237,31 @@ def walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features):
     error = mean_absolute_error(testy, predictions)
     return error, testy, predictions
 
-##################데이터 로드########################
-# dataset = prepare_data_normalized()
+#############################################################
 dataset = prepare_data()
-##################################################
-
-##################윈도우 크기########################
+# dataset = prepare_data_normalized()
+#############################################################
+# choose a number of time steps
 n_steps = 3
-##################################################
-# input/output 나누기 + 슬라이딩 윈도우
+# convert into input/output
+# dataset: exog ..... passenger
 X, y = split_sequences(dataset, n_steps)
-# 몇 종류의 데이터인지
+# print(X.shape)
 n_features = X.shape[2]
-############# 뒤에서부터 n개 셋을 테스트로 쓰겠다##########
-n = 18
-###################################################
-trainX = X[0:-n].astype(float)
-trainy = y[0:-n].astype(float)
-testX = X[-n:].astype(float)
-testy = y[-n:].astype(float)
-# walk_forward_validation으로 매번 학습마다 학습데이터 업데이트
-mae, y, yhat = walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features)
-print('MAE: %.3f' % mae)
 
-pyplot.plot(testy, label='Expected')
-pyplot.plot(yhat, label='Predicted')
-pyplot.legend()
-pyplot.show()
+# # train, test split 맨뒤 n개 셋을 테스트로
+# n = 18
+# trainX = X[0:-n].astype(float)
+# trainy = y[0:-n].astype(float)
+# testX = X[-n:].astype(float)
+# testy = y[-n:].astype(float)
+# # walk_forward_validation으로 매번 학습마다 학습데이터 업데이트
+# mae, y, yhat = walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features)
+# print('MAE: %.3f' % mae)
+
+# pyplot.plot(testy, label='Expected')
+# pyplot.plot(yhat, label='Predicted')
+# pyplot.legend()
+# pyplot.show()
+
+

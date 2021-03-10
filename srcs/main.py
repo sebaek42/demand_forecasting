@@ -26,23 +26,25 @@ def main():
     region_arrive_df, region_total_df, region_departure_df = load_region_data()
 
     # 인천 국제 공항 출발, 도착, 총계 예측
-    for _type in passenger_df.columns:
-        bagging = TS_Bagging(passenger_df[_type], exog_df)
-        predict = bagging.forecast()
-        _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-        save_data(predict, _date, _type)
+    # for _type in passenger_df.columns:
+    #     bagging = TS_Bagging(passenger_df[_type], exog_df)
+    #     predict = bagging.forecast()
+    #     _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+    #     save_data(predict, _date, _type)
 
     # 지역별 인천 국제 공항 출발, 도착, 총계 예측
-    for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
-        for region in region_df.columns:
-            bagging = TS_Bagging(region_df[region], exog_df)
-            predict = bagging.forecast()
-            _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-            save_data(predict, _date, _type, region=region)
-            break
+    # for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
+    #     for region in region_df.columns:
+    #         bagging = TS_Bagging(region_df[region], exog_df)
+    #         predict = bagging.forecast()
+    #         _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+    #         save_data(predict, _date, _type, region=region)
+    #         break
+    bagging = TS_Bagging(passenger_df['total'], exog_df, exog_origin_df)
+    bagging.forecast()
 
 
-def save_data(predict, _date, _type, region):
+def save_data(predict, _date, _type, region=None):
     if region:
         curs = con.cursor()
         insert_sql = """INSERT INTO forecasted_data (date, value, type, region)
