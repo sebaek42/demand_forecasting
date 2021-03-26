@@ -10,262 +10,170 @@ from keras.models import Sequential
 from keras.layers import LSTM
 from keras.layers import Dense
 from sklearn.metrics import mean_absolute_error
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
+
+class Lstm:
+    def __init__(self, train_data, test_data, train_exog, test_exog):
+        self.train_data = train_data
+        self.test_data = test_data
+        self.train_exog = train_exog
+        self.test_exog = test_exog
+
+    
+    def prepare_data(self):
+        
+        self.train_exog = [self.train_exog[col].values.reshape(len(self.train_exog[col]), 1) for col in self.train_exog.columns]
+        self.test_exog = [self.test_exog[col].values.reshape(len(self.test_exog[col]), 1) for col in self.test_exog.columns]
+ 
+        self.train_data = self.train_data.values.reshape(len(self.train_data), 1)
+        self.test_data = self.test_data.values.reshape(len(self.test_data), 1)
+ 
+        train_data_shifted_1 = self.shift(self.train_data, 1)
+        self.train_exog.append(train_data_shifted_1)
+        test_data_shifted_1 = self.join_from_to(self.last_data(self.train_data, 1), self.shift(self.test_data, 1), 1)
+        self.test_exog.append(test_data_shifted_1)
+
+        train_dataset = hstack(self.train_exog + [self.train_data])
+        test_dataset = hstack(self.test_exog + [self.test_data])
+        return train_dataset, test_dataset
+
+    def join_from_to(self, data1, data2, size):
+        e = data2.copy()
+        e[:size] = data1[:size]
+        return e
 
 
-m1 = '/Users/baegseungho/tmp_x/월_나스닥지수.xlsx'
-m2 = '/Users/baegseungho/tmp_x/월_민간소비증감율.xlsx'
-m3 = '/Users/baegseungho/tmp_x/월_소비자물가지수.xlsx'
-m4 = '/Users/baegseungho/tmp_x/월_수출액.xlsx'
-m5 = '/Users/baegseungho/tmp_x/월_실업률.xlsx'
-m6 = '/Users/baegseungho/tmp_x/월_싱가포르항공유.xlsx'
-m7 = '/Users/baegseungho/tmp_x/월_일본연휴수.xlsx'
-m8 = '/Users/baegseungho/tmp_x/월_중국연휴수.xlsx'
-m9 = '/Users/baegseungho/tmp_x/월_코스피.xlsx'
-m10 = '/Users/baegseungho/tmp_x/월_한국연휴수.xlsx'
-m11 = '/Users/baegseungho/tmp_x/월_환율.xlsx'
-m12 = '/Users/baegseungho/tmp_x/월_전세계코로나신규확진자.xlsx'
+    def split_sequences(self, sequences, n_steps):
+        X, y = list(), list()
+        for i in range(len(sequences)):
+            # find the end of this pattern
+            end_ix = i + n_steps
+            # check if we are beyond the dataset
+            if end_ix > len(sequences):
+                break
+            # gather input and output parts of the pattern
+            seq_x, seq_y = sequences[i:end_ix, :-1], sequences[end_ix-1, -1]
+            X.append(seq_x)
+            y.append(seq_y)
 
-# m1 = '/Users/baegseungho/normalized/월_나스닥지수.xlsx'
-# m2 = '/Users/baegseungho/normalized/월_민간소비증감율.xlsx'
-# m3 = '/Users/baegseungho/normalized/월_소비자물가지수.xlsx'
-# m4 = '/Users/baegseungho/normalized/월_수출액.xlsx'
-# m5 = '/Users/baegseungho/normalized/월_실업률.xlsx'
-# m6 = '/Users/baegseungho/normalized/월_싱가포르항공유.xlsx'
-# m7 = '/Users/baegseungho/normalized/월_일본연휴수.xlsx'
-# m8 = '/Users/baegseungho/normalized/월_중국연휴수.xlsx'
-# m9 = '/Users/baegseungho/normalized/월_코스피.xlsx'
-# m10 = '/Users/baegseungho/normalized/월_한국연휴수.xlsx'
-# m11 = '/Users/baegseungho/normalized/월_환율.xlsx'
-# m12 = '/Users/baegseungho/normalized/월_전세계코로나신규확진자.xlsx'
+        return array(X), array(y)
 
-y1 = '/Users/baegseungho/tmp_y/월_전체승객.xlsx'
+    def train_test_split(self, X, y):
+        length = len(y)
+        tr_start, tr_end = 0, int(length * 0.8)+1 
+        te_start, te_end = tr_end, length
 
-# split a multivariate sequence into samples
-def split_sequences(sequences, n_steps):
-	X, y = list(), list()
-	for i in range(len(sequences)):
-		# find the end of this pattern
-		end_ix = i + n_steps
-		# check if we are beyond the dataset
-		if end_ix > len(sequences):
-			break
-		# gather input and output parts of the pattern
-		seq_x, seq_y = sequences[i:end_ix, :-1], sequences[end_ix-1, -1]
-		X.append(seq_x)
-		y.append(seq_y)
-	return array(X), array(y)
+        train_X = X[tr_start:tr_end]
+        test_X = X[te_start:te_end]
 
-def prepare_data():
-    df = pd.read_excel(m1, engine='openpyxl')
-    data = np.array(df)
-    in_seq1 = data[:,1]
-    in_seq1 = in_seq1.reshape((len(in_seq1), 1))
-    df = pd.read_excel(m2, engine='openpyxl')
-    data = np.array(df)
-    in_seq2 = data[:,1]
-    in_seq2 = in_seq2.reshape((len(in_seq2), 1))
-    df = pd.read_excel(m3, engine='openpyxl')
-    data = np.array(df)
-    in_seq3 = data[:,1]
-    in_seq3 = in_seq3.reshape((len(in_seq3), 1))
-    df = pd.read_excel(m4, engine='openpyxl')
-    data = np.array(df)
-    in_seq4 = data[:,1]
-    in_seq4 = in_seq4.reshape((len(in_seq4), 1))
-    df = pd.read_excel(m5, engine='openpyxl')
-    data = np.array(df)
-    in_seq5 = data[:,1]
-    in_seq5 = in_seq5.reshape((len(in_seq5), 1))
-    df = pd.read_excel(m6, engine='openpyxl')
-    data = np.array(df)
-    in_seq6 = data[:,1]
-    in_seq6 = in_seq6.reshape((len(in_seq6), 1))
-    df = pd.read_excel(m7, engine='openpyxl')
-    data = np.array(df)
-    in_seq7 = data[:,1]
-    in_seq7 = in_seq7.reshape((len(in_seq7), 1))
-    df = pd.read_excel(m8, engine='openpyxl')
-    data = np.array(df)
-    in_seq8 = data[:,1]
-    in_seq8 = in_seq8.reshape((len(in_seq8), 1))
-    df = pd.read_excel(m9, engine='openpyxl')
-    data = np.array(df)
-    in_seq9 = data[:,1]
-    in_seq9 = in_seq9.reshape((len(in_seq9), 1))
-    df = pd.read_excel(m10, engine='openpyxl')
-    data = np.array(df)
-    in_seq10 = data[:,1]
-    in_seq10 = in_seq10.reshape((len(in_seq10), 1))
-    df = pd.read_excel(m11, engine='openpyxl')
-    data = np.array(df)
-    in_seq11 = data[:,1]
-    in_seq11 = in_seq11.reshape((len(in_seq11), 1))
-    df = pd.read_excel(m12, engine='openpyxl')
-    data = np.array(df)
-    in_seq12 = data[:,1]
-    in_seq12 = in_seq12.reshape((len(in_seq12), 1))
-    df = pd.read_excel(y1, engine='openpyxl')
-    data = np.array(df)
-    out_seq = data[:,1]
-    out_seq = out_seq.reshape((len(out_seq), 1))
-    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
-    return dataset
+        train_y = y[tr_start:tr_end]
+        test_y = y[te_start:te_end]
 
-def prepare_data_normalized():
-    df = pd.read_excel(m1, engine='openpyxl')
-    data = np.array(df)
-    in_seq1 = data[:,1]
-    norm = np.linalg.norm(in_seq1)
-    in_seq1 = in_seq1/norm
-    in_seq1 = in_seq1.reshape((len(in_seq1), 1))
+        return train_X, test_X, train_y, test_y
 
-    df = pd.read_excel(m2, engine='openpyxl')
-    data = np.array(df)
-    in_seq2 = data[:,1]
-    norm = np.linalg.norm(in_seq2)
-    in_seq2 = in_seq2/norm
-    in_seq2 = in_seq2.reshape((len(in_seq2), 1))
+    def LSTM_forecast(self, trainX, trainy, testX, n_steps, n_features):
+        # fit model
+        trainX = asarray(trainX)
+        trainy = asarray(trainy)
+        model = Sequential()
+        model.add(LSTM(50, activation='relu', input_shape=(n_steps, n_features)))
+        model.add(Dense(1))
+        model.compile(optimizer='adam', loss='mse')
+        model.fit(trainX, trainy, epochs=200, verbose=0)
+        # make a one-step prediction
+        yhat = model.predict(testX, verbose=0)
+        yhat = np.transpose(yhat)
+        yhat = yhat[0]
+        return yhat, model
 
-    df = pd.read_excel(m3, engine='openpyxl')
-    data = np.array(df)
-    in_seq3 = data[:,1]
-    norm = np.linalg.norm(in_seq3)
-    in_seq3 = in_seq3/norm
-    in_seq3 = in_seq3.reshape((len(in_seq3), 1))
+    def split_data(self, dataset, n_steps=1):
+        X, y = [], []
+        remain_X = []
+        remain_y = []
+        for i in range(0, len(dataset), n_steps):
+            end_idx = i + n_steps
+            if end_idx > len(dataset):
+                end_idx = len(dataset)
+                remain_X, remain_y = dataset[i:end_idx, :-1], dataset[i:end_idx, -1] 
+                break
 
-    df = pd.read_excel(m4, engine='openpyxl')
-    data = np.array(df)
-    in_seq4 = data[:,1]
-    norm = np.linalg.norm(in_seq4)
-    in_seq4 = in_seq4/norm
-    in_seq4 = in_seq4.reshape((len(in_seq4), 1))
+            seq_x, seq_y = dataset[i:end_idx, :-1], dataset[end_idx-1, -1] 
+            X.append(seq_x)
+            y.append(seq_y)
+        return list(map(array, [X, y, remain_X, remain_y]))
 
-    df = pd.read_excel(m5, engine='openpyxl')
-    data = np.array(df)
-    in_seq5 = data[:,1]
-    norm = np.linalg.norm(in_seq5)
-    in_seq5 = in_seq5/norm
-    in_seq5 = in_seq5.reshape((len(in_seq5), 1))
+    def walk_forward_validation(self, trainX, trainy, testX, testy, n_steps, n_features):
+        history_X = [x for x in trainX]
+        history_y = [y for y in trainy]
+        predictions = list()
+        # step over each time-step in the test set
+        for test_X, test_y in zip(testX, testy):
+            test_X = array([test_X])
+            # fit model on history and make a prediction
+            yhat, model = self.LSTM_forecast(trainX, trainy, test_X, n_steps, n_features)
+            # store forecast in list of predictions
+            predictions.append(yhat)
+            # add actual observation to history for the next loop
+            history_X.append(test_X)
+            history_y.append(test_y)
+            # summarize progress
+            print('>expected=%.1f, predicted=%.1f' % (test_y, yhat))
+            print('오차율=%.1f ' % (((test_y - yhat) / test_y) * 100))
+        # estimate prediction error
+        error = mean_absolute_error(testy, predictions)
+        return error, testy, predictions, model
 
-    df = pd.read_excel(m6, engine='openpyxl')
-    data = np.array(df)
-    in_seq6 = data[:,1]
-    norm = np.linalg.norm(in_seq6)
-    in_seq6 = in_seq6/norm
-    in_seq6 = in_seq6.reshape((len(in_seq6), 1))
+    def join_remain_to_test(self, test_X, test_y, remain_X, remain_y):
+        remain_X = array([remain_X]).reshape(len(remain_X), 1, len(remain_X[0]))
+        test_X = np.concatenate([remain_X, test_X])
+        test_y = np.concatenate([test_y, remain_y])
 
-    df = pd.read_excel(m7, engine='openpyxl')
-    data = np.array(df)
-    in_seq7 = data[:,1]
-    norm = np.linalg.norm(in_seq7)
-    in_seq7 = in_seq7/norm
-    in_seq7 = in_seq7.reshape((len(in_seq7), 1))
+        return test_X, test_y
 
-    df = pd.read_excel(m8, engine='openpyxl')
-    data = np.array(df)
-    in_seq8 = data[:,1]
-    norm = np.linalg.norm(in_seq8)
-    in_seq8 = in_seq1/norm
-    in_seq8 = in_seq8.reshape((len(in_seq8), 1))
+    def shift(self, xs, n):
+        e = np.empty_like(xs)
+        if n >= 0:
+            e[:n] = np.zeros(shape=(abs(n), 1))
+            e[n:] = xs[:-n]
+        else:
+            e[n:] = np.zeros(shape=(abs(n), 1))
+            e[:n] = xs[-n:]
+        return array(e)
 
-    df = pd.read_excel(m9, engine='openpyxl')
-    data = np.array(df)
-    in_seq9 = data[:,1]
-    norm = np.linalg.norm(in_seq9)
-    in_seq9 = in_seq9/norm
-    in_seq9 = in_seq9.reshape((len(in_seq9), 1))
+    def last_data(self, xs, n):
+        e = np.empty_like(xs)
+        e[n:] = np.zeros(shape=(len(xs)-n, 1))
+        e[:n] = xs[-n:]      
+        return array(e)
 
-    df = pd.read_excel(m10, engine='openpyxl')
-    data = np.array(df)
-    in_seq10 = data[:,1]
-    norm = np.linalg.norm(in_seq10)
-    in_seq10 = in_seq10/norm
-    in_seq10 = in_seq10.reshape((len(in_seq10), 1))
+    def fit(self):
+        n_steps = 3
+        train_dataset, test_dataset = self.prepare_data()
 
-    df = pd.read_excel(m11, engine='openpyxl')
-    data = np.array(df)
-    in_seq11 = data[:,1]
-    norm = np.linalg.norm(in_seq11)
-    in_seq11 = in_seq11/norm
-    in_seq11 = in_seq11.reshape((len(in_seq11), 1))
+        train_X, train_y= map(np.array, self.split_sequences(train_dataset, n_steps))
+        test_X, test_y = map(np.array, self.split_sequences(test_dataset, n_steps))
 
-    df = pd.read_excel(m12, engine='openpyxl')
-    data = np.array(df)
-    in_seq12 = data[:,1]
-    norm = np.linalg.norm(in_seq12)
-    in_seq12 = in_seq12/norm
-    in_seq12 = in_seq12.reshape((len(in_seq12), 1))
+        # model의 학습 데이터 차원을 맞추기 위해
+        # block size 보다 작은 데이터는 test 데이터 앞쪽에 추가한다.
+        # test_X, test_y = self.join_remain_to_test(test_X, test_y, remain_X, remain_y)
+        mae, y, yhat, model = self.walk_forward_validation(train_X, train_y, test_X, test_y, train_X.shape[1], train_X.shape[2])
+        
+        self.model = model
+        self.pred_exog = test_X
 
-    df = pd.read_excel(y1, engine='openpyxl')
-    data = np.array(df)
-    out_seq = data[:,1]
-    out_seq = out_seq.reshape((len(out_seq), 1))
-    dataset = hstack((in_seq1, in_seq2, in_seq3, in_seq4, in_seq5, in_seq6, in_seq7, in_seq8, in_seq9, in_seq10, in_seq11, in_seq12, out_seq))
-    return dataset
+        print('MAE: %.3f' % mae)
 
-def LSTM_forecast(trainX, trainy, testX, n_steps, n_features):
-    # fit model
-    trainX = asarray(trainX)
-    trainy = asarray(trainy)
-    model = Sequential()
-    model.add(LSTM(50, activation='relu', input_shape=(n_steps, n_features)))
-    model.add(Dense(1))
-    model.compile(optimizer='adam', loss='mse')
-    model.fit(trainX, trainy, epochs=200, verbose=0)
-    # make a one-step prediction
-    yhat = model.predict(testX, verbose=0)
-    yhat = np.transpose(yhat)
-    yhat = yhat[0]
-    return yhat
+    # 최대 1년
+    def predict(self, n_periods=6):
+        exog = self.pred_exog[-n_periods:]
+        pred = []
+        for e in exog:
+            e = array([e])
+            yhat = self.model.predict(e, verbose=0)
+            yhat = np.transpose(yhat)
+            yhat = yhat[0][0]
+            pred.append(yhat)
 
-def walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features):
-    predictions = list()
-    # seed history with training dataset
-    history_x = [x for x in trainX]
-    history_y = [y for y in trainy]
-    # step over each time-step in the test set
-    for i in range(len(testX)):
-        # split test row into input and output columns
-        test_X, test_y = testX[i:i+1], testy[i:i+1]
-        # fit model on history and make a prediction
-        yhat = LSTM_forecast(history_x, history_y, test_X, n_steps, n_features)
-        # store forecast in list of predictions
-        predictions.append(yhat)
-        # add actual observation to history for the next loop
-        history_x.append(test_X[0])
-        history_y.append(test_y[0])
-        # summarize progress
-        print('>expected=%.1f, predicted=%.1f' % (test_y, yhat))
-        print('오차율=%.1f ' % (((test_y - yhat) / test_y) * 100))
-    # estimate prediction error
-    error = mean_absolute_error(testy, predictions)
-    return error, testy, predictions
-
-##################데이터 로드########################
-# dataset = prepare_data_normalized()
-dataset = prepare_data()
-##################################################
-
-##################윈도우 크기########################
-n_steps = 3
-##################################################
-# input/output 나누기 + 슬라이딩 윈도우
-X, y = split_sequences(dataset, n_steps)
-# 몇 종류의 데이터인지
-n_features = X.shape[2]
-############# 뒤에서부터 n개 셋을 테스트로 쓰겠다##########
-n = 18
-###################################################
-trainX = X[0:-n].astype(float)
-trainy = y[0:-n].astype(float)
-testX = X[-n:].astype(float)
-testy = y[-n:].astype(float)
-# walk_forward_validation으로 매번 학습마다 학습데이터 업데이트
-mae, y, yhat = walk_forward_validation(trainX, trainy, testX, testy, n_steps, n_features)
-print('MAE: %.3f' % mae)
-
-pyplot.plot(testy, label='Expected')
-pyplot.plot(yhat, label='Predicted')
-pyplot.legend()
-pyplot.show()
+        print('LSTM Done!')
+        # return pred.values
+        return np.array(pred)

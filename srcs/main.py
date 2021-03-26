@@ -1,47 +1,49 @@
+import os
 import pymysql
 import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
-from timeseries_bagging import TS_Bagging
+from dotenv import load_dotenv
+import ensemble_models as em
+
+# 환경 변수 사용
+load_dotenv()
+
+HOST = os.getenv('host')
+USER = os.getenv('user')
+DB = os.getenv('db')
+PASSWORD = os.getenv('password')
 
 con = pymysql.connect(
-        host='localhost', 
-        user='root', 
-        db='airport', 
-        passwd='admin', 
+        host=HOST, 
+        user=USER, 
+        db=DB, 
+        passwd=PASSWORD, 
         charset='utf8'
     )
-
-"""
-2021-03-03: MySQL 상 데이터 가져와 데이터 프레임으로 정리까지 함
-Todo:
-Bagging에서 데이터 추세, 계절, 기타로 분해 후 기타 데이터 부트스트랩핑 후 전달
-각 모델에 기타 데이터 예측 후 반환
-
-Bagging 에서 반환 받은 데이터에 추세, 계절 더한 결과 반환
-"""
 def main():
     exog_df, exog_origin_df = load_exog_data('exog_data'), load_exog_data('exog_origin_data')
     passenger_df = load_passenger_data()
     region_arrive_df, region_total_df, region_departure_df = load_region_data()
 
     # 인천 국제 공항 출발, 도착, 총계 예측
-    # for _type in passenger_df.columns:
-    #     bagging = TS_Bagging(passenger_df[_type], exog_df)
-    #     predict = bagging.forecast()
-    #     _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-    #     save_data(predict, _date, _type)
+    print('Predict non-region passenger')
+    for _type in passenger_df.columns:
+        predict = em.fit_model_and_predict(passenger_df[_type], exog_df, exog_origin_df)
+        _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+        save_data(predict, _date, _type)
+        print('Data inserted')
 
     # 지역별 인천 국제 공항 출발, 도착, 총계 예측
-    # for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
-    #     for region in region_df.columns:
-    #         bagging = TS_Bagging(region_df[region], exog_df)
-    #         predict = bagging.forecast()
-    #         _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-    #         save_data(predict, _date, _type, region=region)
-    #         break
-    bagging = TS_Bagging(passenger_df['total'], exog_df, exog_origin_df)
-    bagging.forecast()
+    print('Predict region passenger')
+    for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
+        for region in region_df.columns:
+            predict = em.fit_model_and_predict(passenger_df[_type], exog_df, exog_origin_df)
+            _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+            save_data(predict, _date, _type, region=region)
+            print('Data inserted')
+
+    print('Done!')
 
 
 def save_data(predict, _date, _type, region=None):

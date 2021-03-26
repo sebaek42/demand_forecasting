@@ -2,27 +2,22 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pmdarima as pm
+from arch.bootstrap import MovingBlockBootstrap, optimal_block_length
 
 class Sarimax:
-    def __init__(self, train_resid, test_resid, train_other, test_other, train_exog, test_exog):
-        self.train_resid = train_resid
-        self.test_resid = test_resid
-        self.train_other = train_other
-        self.test_other = test_other
+    def __init__(self, train_data, test_data, train_exog, test_exog):
+        self.train_data = train_data
+        self.test_data = test_data
         self.train_exog = train_exog
         self.test_exog = test_exog
     
     def auto_sarimax(self):
-        print("---train model---")
-        model = pm.auto_arima(self.train_resid, self.train_exog,
+        # 데이터에 따른 최적 AR, MA의 차수 및 계절 차수 구함
+        model = pm.auto_arima(self.train_data, self.train_exog, seasonal=True, m=12, d=1,
                                 start_p=0, start_q=0, max_p=7, max_q=7)
 
-        
-        pred_resid, conf = self.update_model(model)
-
-        pred = pred_resid + self.test_other
-        test = self.test_other + self.test_resid
-        self.print_result(pred, test)
+        pred, conf = self.update_model(model)
+        # self.print_result(pred, self.test_data)
 
         return model
 
@@ -32,7 +27,7 @@ class Sarimax:
         # 신뢰 구간
         confidence_intervals = []
 
-        for new_ob, exog_idx in zip(self.test_resid, self.test_exog.index):
+        for new_ob, exog_idx in zip(self.test_data, self.test_exog.index):
             # 1 period 씩 예측을 수행한다.
             exog_df = pd.DataFrame(self.test_exog.loc[exog_idx]).T
             fc, conf = self.forecast_one_step(model, exog_df)
@@ -58,10 +53,13 @@ class Sarimax:
         plt.show()
         print(round(((pred-test)/test)*100, 2))
 
+
+    def fit(self):
+        self.model = self.auto_sarimax()
+
     # 최대 1년
-    def sarimax_predict(self, n_periods=6):
-        model = self.auto_sarimax()
+    def predict(self, n_periods=6):
         pred_exog = self.test_exog.iloc[len(self.test_exog)-n_periods:]
-        pred = model.predict(n_periods=n_periods, X=pred_exog)
-        pred += self.test_other[len(self.test_other)-n_periods:]
-        return pred.values
+        pred = self.model.predict(n_periods=n_periods, X=pred_exog)
+        print("SARIMAX Done!")
+        return pred
