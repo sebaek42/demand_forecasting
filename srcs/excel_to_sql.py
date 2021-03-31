@@ -2,13 +2,22 @@ import os
 import numpy as np
 import pandas as pd
 import pymysql
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 # MySQL Connector using pymysql
 pymysql.install_as_MySQLdb()
 import MySQLdb
 
-engine = create_engine("mysql+mysqldb://root:"+"admin"+"@localhost/airport", encoding='utf-8')
+# 환경 변수 사용
+load_dotenv()
+
+HOST = os.getenv('host')
+USER = os.getenv('user')
+DB = os.getenv('db')
+PASSWORD = os.getenv('password')
+
+engine = create_engine("mysql+mysqldb://"+USER+PASSWORD+"@"+HOST+"/"+DB, encoding='utf-8')
 #engine = create_engine("mysql+mysqldb://사용자이름:"+"비밀번호"+"@localhost/DB이름", encoding='utf-8')
 
 conn = engine.connect()
