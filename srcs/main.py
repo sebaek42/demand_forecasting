@@ -35,13 +35,13 @@ def main():
         print('Data inserted')
 
     # 지역별 인천 국제 공항 출발, 도착, 총계 예측
-    print('Predict region passenger')
-    for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
-        for region in region_df.columns:
-            predict = em.fit_model_and_predict(passenger_df[_type], exog_df, exog_origin_df)
-            _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-            save_data(predict, _date, _type, region=region)
-            print('Data inserted')
+    # print('Predict region passenger')
+    # for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
+    #     for region in region_df.columns:
+    #         predict = em.fit_model_and_predict(passenger_df[_type], exog_df, exog_origin_df)
+    #         _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+    #         save_data(predict, _date, _type, region=region)
+    #         print('Data inserted')
 
     print('Done!')
 
@@ -61,7 +61,7 @@ def save_data(predict, _date, _type, region=None):
         curs = con.cursor()
         insert_sql = """INSERT INTO forecasted_data (date, value, type)
                 VALUES (%s, %s, %s)"""
-        delete_sql = """DELETE FROM forecasted_data WHERE type = '{}' and region IS NULL
+        delete_sql = """DELETE FROM forecasted_data WHERE type = '{}' and region=total
         """.format(_type)
         curs.execute(delete_sql)
         data = list(zip( _date, predict, [_type]*len(predict)))

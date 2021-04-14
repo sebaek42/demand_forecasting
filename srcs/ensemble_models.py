@@ -21,7 +21,7 @@ def split_train_test(data, train_ratio):
 
     return train, test
     
-def fit_model_and_predict(passenger, exog_norm, exog_org, ratio=0.8, n_periods=12):
+def fit_model_and_predict(passenger, exog_norm, exog_org, ratio=0.8, n_periods=6):
     train_passenger, test_passenger = split_train_test(passenger, ratio)
     train_exog_norm, test_exog_norm = split_train_test(exog_norm, ratio)
     train_exog_org, test_exog_org = split_train_test(exog_org, ratio)
@@ -36,5 +36,5 @@ def fit_model_and_predict(passenger, exog_norm, exog_org, ratio=0.8, n_periods=1
     for model in models:
         model.fit()
         pred.append(model.predict(n_periods=n_periods))
-
+    print(np.array(list(map(int , sum(pred) / 3))))
     return np.array(list(map(int , sum(pred) / 3)))

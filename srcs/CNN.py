@@ -143,6 +143,7 @@ class Cnn:
         for e in exog:
             e = array([e])
             yhat = self.model.predict(e, verbose=0)
+            print(yhat)
             yhat = np.transpose(yhat)
             yhat = yhat[0][0]
             pred.append(yhat)
