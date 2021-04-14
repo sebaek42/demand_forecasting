@@ -16,11 +16,11 @@
 
         // Create and populate a data table
         var data = new google.visualization.DataTable();
-        data.addColumn("string", "City");
+        data.addColumn("string", "Country");
         data.addColumn("number", "Value");
         data.addRows([
-        //   ["Rio de Janeiro", 10],
-        //   ["Maricá", 5],
+			["Oceania", 10]
+        //   ["Maricá", 5]
         ]);
 
         // Instantiate our Geochart GeoJSON object
@@ -29,10 +29,10 @@
         // Set Geochart GeoJSON options
         var options = {
           mapsOptions: {
-            center: {lat: -22.15, lng: -42.9},
-            zoom: 8
+            center: {lat: 30, lng: 0},
+            zoom: 1.4
           },
-          geoJson: "https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/worldmap.geojson",
+          geoJson: "https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/world.geojson",
           geoJsonOptions: {
             idPropertyName: "name"
           }
@@ -45,6 +45,6 @@
   </head>
 
   <body>
-    <div id="mydiv" style="width: 900px; height: 560px;"></div>
+    <div id="mydiv" style="width: 700px; height: 500px;"></div>
   </body>
 </html>
