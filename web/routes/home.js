@@ -1,42 +1,50 @@
+const e = require('express');
 var express = require('express');
-var mysql = require('mysql');
+var mysql = require('../db/mysql');
 var router = express.Router();
-require('dotenv').config();
-
-var connection = mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DB
-});
-
 
 router.get('/', function(req, res){
     res.render('home/index');
 })
 
 router.get('/forecast', function(req, res){
-    res.render('home/forecast');
+    res.render('home/forecast', {forecast:{}});
 })
 
 router.get('/forecast/show', function(req,res){
     var region = req.query.regionRadios
     var type = req.query.typeRadios
-    var data = getData(region, type);
+    getData(region, type)
+    .then(function(data){
+        res.locals.forecast = data;
+        res.render('home/forecast');
+    });
 })
 
 module.exports = router;
 
 function getData(region, type){
-    connection.connect();
-    var sql = '';
-    if(region == "total"){
-        sql = `SELECT * FROM passenger_data WEHRE type=${type}`;
-    } else {
-        sql = `SELECT * FROM region_data WEHRE region=${type} and type=${type}`;
+    var sql = "SELECT * FROM forecasted_data WHERE region=? and type=?";
+    return mysql.query(sql, [region, type]).then(parsingData);
+}
+
+async function parsingData(rows){
+    var results = rows[0];
+    var returnArr = [];
+    for(var i=0;i<results.length;i++){
+        var data = results[i];
+        var date = await parsingDate(data['date']);
+        var value = data.value;
+        var type = data.type;
+        var region = data.region;
+        returnArr.push({type, region, value, date});
     }
-    connection.query("SELECT * FROM passenger_data", function(err, results, fields){
-        if(err) return err;
-        console.log(results);
-    })
+    return returnArr;
+}
+
+function parsingDate(date){
+    var splitDate = `${date}`.split('-');
+    var year = splitDate[0];
+    var month = splitDate[1];
+    return `${year}-${month}`;
 }

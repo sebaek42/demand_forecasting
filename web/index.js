@@ -14,9 +14,7 @@ app.use(express.static(__dirname+'/public'))
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-
 app.use('/', require('./routes/home'));
-
 
 var port = 8888;
 app.listen(port, function(){

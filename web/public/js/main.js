@@ -1,9 +1,3 @@
-/**
-* Template Name: FlexStart - v1.2.0
-* Template URL: https://bootstrapmade.com/flexstart-bootstrap-startup-template/
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
 (function() {
   "use strict";
 
@@ -285,5 +279,10 @@
   window.addEventListener('load', () => {
     aos_init();
   });
-
+  
 })();
+
+fetch('/forecast/show').then(function(res){
+  console.log('JJ');
+  console.log(res);
+});
