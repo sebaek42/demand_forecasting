@@ -1,12 +1,12 @@
 var express = require('express');
 const { query } = require('./db/mysql');
-var mysql = require('./db/mysql');
+// var mysql = require('./db/mysql');
 var app = express();
 
 require('dotenv').config();
 
 // DB
-mysql.connect();
+// mysql.connect();
 
 // Settings
 app.set('view engine', 'ejs');
