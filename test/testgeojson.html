@@ -5,7 +5,8 @@
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtzJM8JY8JFlt5f-evGd-GRpniXUSeTUo"></script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/sebaek42/demand_forecasting/main/test/geochart-geojson.js"></script>
+    <script type="text/javascript" src="https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/geochart-geojson.js">
+	// https://rawgit.org/ 에서 깃헙 리소스 url 넣으면 링크 생성됨</script>
 
     <script type="text/javascript">
       google.charts.load("current");
@@ -18,11 +19,8 @@
         data.addColumn("string", "City");
         data.addColumn("number", "Value");
         data.addRows([
-          ["Rio de Janeiro", 10],
-          ["Maricá", 5],
-          ["São João de Meriti", 2],
-          ["Niterói", 1],
-          ["São Gonçalo", 1]
+        //   ["Rio de Janeiro", 10],
+        //   ["Maricá", 5],
         ]);
 
         // Instantiate our Geochart GeoJSON object
@@ -34,7 +32,7 @@
             center: {lat: -22.15, lng: -42.9},
             zoom: 8
           },
-          geoJson: "https://cdn.rawgit.com/rarylson/geochart-geojson/master/example/rio-state.geojson",
+          geoJson: "https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/worldmap.geojson",
           geoJsonOptions: {
             idPropertyName: "name"
           }
