@@ -19,7 +19,8 @@
         data.addColumn("string", "Country");
         data.addColumn("number", "Value");
         data.addRows([
-			["Oceania", 10]
+          ["Oceania", 10],
+          ["America", 30]
         //   ["Maricá", 5]
         ]);
 
@@ -34,7 +35,7 @@
           },
           geoJson: "https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/world.geojson",
           geoJsonOptions: {
-            idPropertyName: "name"
+            idPropertyName: "COUNTRY"
           }
         };
 
