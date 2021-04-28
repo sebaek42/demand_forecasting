@@ -8,5 +8,5 @@ var pool = mysql.createPool({
     database: process.env.MYSQL_DB,
     dateStrings: 'date'
 });
-const promisePool = pool.promise();//얘도 프로미스..객체를 사용하기위함?
+const promisePool = pool.promise();
 module.exports = promisePool;
