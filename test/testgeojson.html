@@ -13,7 +13,6 @@
       google.charts.setOnLoadCallback(drawVisualization);
 
       function drawVisualization() {
-
         // Create and populate a data table
         var data = new google.visualization.DataTable();
         data.addColumn("string", "Country");
@@ -42,11 +41,12 @@
           geoJson: "https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/world.geojson",
           geoJsonOptions: {
             idPropertyName: "COUNTRYAFF"
-          }
+          },
         };
 
         // Draw our Geochart GeoJSON with the data we created locally
         vis.draw(data, options);
+
       }
     </script>
   </head>
