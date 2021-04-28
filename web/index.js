@@ -1,6 +1,4 @@
 var express = require('express');
-const { query } = require('./db/mysql');
-// var mysql = require('./db/mysql');
 var app = express();
 
 require('dotenv').config();

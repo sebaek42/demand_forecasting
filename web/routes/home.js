@@ -1,4 +1,3 @@
-const e = require('express');
 var express = require('express');
 var mysql = require('../db/mysql');
 var router = express.Router();
@@ -9,6 +8,7 @@ router.get('/', function(req, res){
 
 router.get('/forecast', function(req, res){
     res.render('home/forecast', {forecast:{}});
+
 })
 
 router.get('/forecast/show', function(req,res){
@@ -20,7 +20,6 @@ router.get('/forecast/show', function(req,res){
         res.render('home/forecast');
     });
 })
-
 module.exports = router;
 
 function getData(region, type){
