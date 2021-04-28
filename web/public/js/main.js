@@ -281,8 +281,3 @@
   });
   
 })();
-
-fetch('/forecast/show').then(function(res){
-  console.log('JJ');
-  console.log(res);
-});

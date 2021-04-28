@@ -42,6 +42,10 @@
         <div class="row">
           <div class="col-lg-8 entries">
             <article class="entry">
+              <script>
+                var data = "<%= forecast %>";
+                console.log(JSON.stringify(data));
+              </script>
               <% if(forecast.length !== 0){
                   console.log(forecast);
                 }
