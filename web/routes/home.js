@@ -16,8 +16,7 @@ router.get('/forecast/show', function(req,res){
     var type = req.query.typeRadios
     getData(region, type)
     .then(function(data){
-        res.locals.forecast = JSON.stringify(data);
-        res.render('home/forecast');
+        res.render('home/forecast' , { forecast: JSON.stringify(data) });
     });
 })
 module.exports = router;
