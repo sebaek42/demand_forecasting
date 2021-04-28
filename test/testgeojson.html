@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <html>
   <head>
     <meta charset="utf-8">
@@ -48,3 +49,62 @@
     <div id="mydiv" style="width: 900px; height: 560px;"></div>
   </body>
 </html>
+=======
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Geochart GeoJSON example page</title>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtzJM8JY8JFlt5f-evGd-GRpniXUSeTUo"></script>
+    <script type="text/javascript" src="https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/geochart-geojson.js">
+	// https://rawgit.org/ 에서 깃헙 리소스 url 넣으면 링크 생성됨</script>
+
+    <script type="text/javascript">
+      google.charts.load("current");
+      google.charts.setOnLoadCallback(drawVisualization);
+
+      function drawVisualization() {
+
+        // Create and populate a data table
+        var data = new google.visualization.DataTable();
+        data.addColumn("string", "Country");
+        data.addColumn("number", "Value");
+        data.addRows([
+          ["Etc", 10],
+          ["South East Asia", 20],
+          ["North East Asia", 30],
+          ["America", 40],
+          ["Oceania", 50],
+          ["Europe", 60],
+          ["China", 70],
+          ["Japan", 80],
+          ["Middle East", 90]
+        ]);
+
+        // Instantiate our Geochart GeoJSON object
+        var vis = new geochart_geojson.GeoChart(document.getElementById("mydiv"));
+
+        // Set Geochart GeoJSON options
+        var options = {
+          mapsOptions: {
+            center: {lat: 30, lng: 0},
+            zoom: 1.4
+          },
+          geoJson: "https://ghcdn.rawgit.org/sebaek42/demand_forecasting/main/test/world.geojson",
+          geoJsonOptions: {
+            idPropertyName: "COUNTRYAFF"
+          }
+        };
+
+        // Draw our Geochart GeoJSON with the data we created locally
+        vis.draw(data, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="mydiv" style="width: 700px; height: 500px;"></div>
+  </body>
+</html>
+>>>>>>> cfc3ff71d7ee49b8b6d3b268df9f393ca070d928
