@@ -174,7 +174,7 @@ var geochart_geojson = {};
     },
     mapsOptions: null,
     mapsBackground: "none", // TODO Implement
-    mapsControl: false, // TODO Implement
+    mapsControl: true, // TODO Implement
     tooltip: {
       textStyle: {
         color: "#000000",
@@ -202,10 +202,10 @@ var geochart_geojson = {};
       throw new Error("Invalid `mapsBackground` option");
     }
 
-    if (!this.options_.mapsControl) {
-      maps_options.disableDefaultUI = true;
-      maps_options.scrollwheel = false;
-      maps_options.draggable = false;
+    if (this.options_.mapsControl) {
+      // maps_options.disableDefaultUI = true;
+      maps_options.enableScrollWheel = true;
+      maps_options.draggable = true;
       maps_options.disableDoubleClickZoom = true;
     } else {
       throw new Error("Invalid `mapsControl` option");
