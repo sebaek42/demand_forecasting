@@ -7,8 +7,11 @@ router.get('/', function(req, res){
 })
 
 router.get('/forecast', function(req, res){
-    res.render('home/forecast', {forecast:{}});
-
+    getData('total', 'total')
+    .then(function(data){
+        console.log(data);
+        res.render('home/forecast' , { forecast: JSON.stringify(data) });
+    });
 })
 
 router.get('/forecast/show', function(req,res){
@@ -16,6 +19,7 @@ router.get('/forecast/show', function(req,res){
     var type = req.query.typeRadios
     getData(region, type)
     .then(function(data){
+        console.log(data);
         res.render('home/forecast' , { forecast: JSON.stringify(data) });
     });
 })
