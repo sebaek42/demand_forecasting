@@ -201,7 +201,7 @@ section {
 # Navigation Menu
 --------------------------------------------------------------*/
 /**
-* Desktop Navigation 
+* Desktop Navigation
 */
 .navbar {
   padding: 0;
@@ -319,7 +319,7 @@ section {
 }
 
 /**
-* Mobile Navigation 
+* Mobile Navigation
 */
 .mobile-nav-toggle {
   color: #012970;
@@ -1699,7 +1699,7 @@ section {
 }
 
 .blog .entry .entry-img {
-  max-height: 440px;
+  max-height: 720px;
   margin: -30px -30px 20px -30px;
   overflow: hidden;
 }
