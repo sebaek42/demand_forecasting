@@ -7,9 +7,9 @@ router.get('/', function(req, res){
 })
 
 router.get('/forecast', function(req, res){
-    getData('total', 'total')
+    var sql = "SELECT * FROM forecasted_data";
+    getData(sql)
     .then(function(data){
-        console.log(data);
         res.render('home/forecast' , { forecast: JSON.stringify(data) });
     });
 })
@@ -17,16 +17,15 @@ router.get('/forecast', function(req, res){
 router.get('/forecast/show', function(req,res){
     var region = req.query.regionRadios
     var type = req.query.typeRadios
-    getData(region, type)
+    var sql = "SELECT * FROM forecasted_data WHERE region=? and type=?";
+    getData(sql, region, type)
     .then(function(data){
-        console.log(data);
         res.render('home/forecast' , { forecast: JSON.stringify(data) });
     });
 })
 module.exports = router;
 
-function getData(region, type){
-    var sql = "SELECT * FROM forecasted_data WHERE region=? and type=?";
+function getData(sql, region, type){
     return mysql.query(sql, [region, type]).then(parsingData);
 }
 
