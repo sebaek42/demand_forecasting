@@ -53,13 +53,9 @@
                     // Json 내부 쌍따옴표("") 사용
                     // Nodejs 문법 사용 위해서 따옴표('') 사용할 것
                     var data = JSON.parse('<%- forecast %>');
-                    var colChartData = getColChartData(data, 'total', 'total');
-                    var regionChartData = []
-                    for(var i=0;i<regions.length;i++){
-                      regionChartData.push(getRegionChartData(data, regions[i], 
-                      'total', 0));
-                    }
-                    drawChart();
+                    getParameter().then(processData).then(drawChart);
+                     
+
                   </script>
                   <div id="columnchart_values"></div>
                 <%} else {%>
@@ -161,7 +157,7 @@
 
       <div class="col-lg-3">
         <div class="sidebar">
-          <form action="/forecast/show/" class="sidebar-item" method="get">
+          <form action="/forecast" class="sidebar-item" method="get">
             <fieldset class="form-group">
               <div class="row">
                 <legend class="sidebar-title">Region</legend>
@@ -249,6 +245,19 @@
                         <input class="form-check-input" type="radio" name="typeRadios" id="typeRadios3" value="arrive">
                         <label class="form-check-label" for="typeRadios3">
                           입국
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+                <fieldset class="form-group" style="margin-top: 30px">
+                  <div class="row">
+                    <legend class="sidebar-title">Date</legend>
+                    <div class="col-sm-10">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="" id="typeRadios1" value="total" checked>
+                        <label class="form-check-label" for="typeRadios1">
+                          전체
                         </label>
                       </div>
                     </div>

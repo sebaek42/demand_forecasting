@@ -2,16 +2,20 @@
 var regions = ["Etc", "South East Asia", "North East Asia", "America", "Oceania",
 "Europe", "China", "Japan", "Middle East"];
 // 지도 파이 차트  /////// 바 차트 분리해야됨
-var drawChart = function() {
+var regionChartData = [];
+var colChartData = [];
+var drawChart = async function(processedData) {
+    colChartData = processedData[0];
+    regionChartData = processedData[1];
+    console.log(regionChartData);
     google.charts.load('current', {packages: ['corechart', 'bar', 'geochart']});
     google.charts.setOnLoadCallback(drawBarChart);
     google.charts.setOnLoadCallback(drawMapChart);
+
 }
 function drawMapChart() {
     // Create and populate a data table
     var data = new google.visualization.DataTable();
-    var regions = ["Etc", "South East Asia", "North East Asia", "America", "Oceania",
-    "Europe", "China", "Japan", "Middle East"]
     data.addColumn("string", "Country");
     data.addColumn("number", "Passenger");
     data.addRows(regionChartData.length);
@@ -70,6 +74,7 @@ function getColChartData(data, region, type){
 }
 
 function getRegionChartData(data, region, type, idx){
+    console.log(type);
     var returnData = []
     for(var i=0;i<data.length;i++){
         if(data[i].region === region && data[i].type === type){
@@ -77,4 +82,38 @@ function getRegionChartData(data, region, type, idx){
         }
     }
     return returnData[idx]
+}
+function getParameter(){
+    return new Promise(function(resolve, reject){
+        var paramNames = ['regionRadios', 'typeRadios', 'dateIndex'];
+        var url = document.location.href;
+        var qs = url.substring(url.indexOf('?') + 1).split("&");
+        var result = {};
+        for(var i=0;i<qs.length;i++){
+            qs[i] = qs[i].split("=");
+            result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+        }
+        for(var i=0;i<paramNames.length;i++){
+            if(result[paramNames[i]] == undefined){
+                if(i !== 2){
+                    result[paramNames[i]] = 'total';
+                } else {
+                    result[paramNames[i]] = 0;
+                }
+            }
+        }
+        resolve(result);
+    })
+}
+
+function processData(params){
+    return new Promise(function(resolve, reject){
+        var colChartData = getColChartData(data, params.regionRadios, params.typeRadios);
+        var regionChartData = []
+        for(var i=0;i<regions.length;i++){
+            regionChartData.push(getRegionChartData(data, regions[i], 
+            params.typeRadios, params.dateIndex));
+        }
+        resolve([colChartData, regionChartData]);
+    })
 }

@@ -46,7 +46,6 @@ def main():
             print(f'{region} Done!')
     print('All Done!')
 
-
 def save_data(predict, _date, _type, region='total'):
     curs = con.cursor()
     insert_sql = """INSERT INTO forecasted_data (date, value, type, region)
