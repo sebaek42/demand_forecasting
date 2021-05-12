@@ -16,9 +16,9 @@ var drawChart = function(processedData) {
 
 function drawRowChart() {
     var data = new google.visualization.DataTable();
-    data.addColumn("String", "Country");
+    data.addColumn("string", "Country");
     data.addColumn("number", "Passenger");
-    data.addRows(regionData.length);
+    data.addRows(regionChartData.length);
     for(var i = 0; i < regionChartData.length; ++i) {
         data.setCell(i, 0, regionChartData[i].region);
         data.setCell(i, 1, regionChartData[i].value);
@@ -29,16 +29,16 @@ function drawRowChart() {
         },
         bars: 'horizontal'
     };
-    var chart = new google.chart.Bar(document.getElementById("rowchart_values"));
+    var chart = new google.charts.Bar(document.getElementById("rowchart_values"));
 
     chart.draw(data, google.charts.Bar.convertOptions(options));
 }
 
 function drawPieChart() {
     var data = new google.visualization.DataTable();
-    data.addColumn("String", "Country");
+    data.addColumn("string", "Country");
     data.addColumn("number", "Passenger");
-    data.addRows(regionData.length);
+    data.addRows(regionChartData.length);
     for(var i = 0; i < regionChartData.length; ++i) {
         data.setCell(i, 0, regionChartData[i].region);
         data.setCell(i, 1, regionChartData[i].value);

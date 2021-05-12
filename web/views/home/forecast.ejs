@@ -49,13 +49,11 @@
               <div class="entry-img">
                 <% if(forecast.length> 0) {%>
                   <script>
-
                     // Passing data from nodejs to javascript
                     // Json 내부 쌍따옴표("") 사용
                     // Nodejs 문법 사용 위해서 따옴표('') 사용할 것
                     var data = JSON.parse('<%- forecast %>');
                     getParameter().then(processData).then(drawChart);
-
 
                   </script>
                   <div id="columnchart_values"></div>
@@ -72,7 +70,6 @@
             <!-- Map Chart -->
             <article class="entry">
               <div class="entry-img">
-                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                 <script
                   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtzJM8JY8JFlt5f-evGd-GRpniXUSeTUo"></script>
                 <script type="text/javascript"
@@ -92,7 +89,6 @@
             <!-- Pie Chart -->
             <article class="entry">
               <div class="entry-img">
-                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                 <% if(forecast.length> 0) {%>
                   <div id="piechart_values"></div>
                   <%} else { %>
@@ -102,11 +98,10 @@
                       <span style="font-size: 20px">Please submit data option!</span>
                     </div>
                     <%}%>
-              </div><!-- End blog entry -->
+              </div>
+            </article>
             <article class="entry">
-
               <div class="entry-img">
-                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                 <% if(forecast.length> 0) {%>
                   <div id="rowchart_values"></div>
                   <%} else { %>
@@ -117,48 +112,8 @@
                     </div>
                     <%}%>
               </div>
-
-              <!-- <h2 class="entry-title">
-                <a href="blog-single.html">Non rem rerum nam cum quo minus. Dolor distinctio deleniti explicabo eius
-                  exercitationem.</a>
-              </h2>
-
-              <div class="entry-meta">
-                <ul>
-                  <li class="d-flex align-items-center"><i class="bi bi-person"></i> <a href="blog-single.html">John
-                      Doe</a></li>
-                  <li class="d-flex align-items-center"><i class="bi bi-clock"></i> <a href="blog-single.html"><time
-                        datetime="2020-01-01">Jan 1, 2020</time></a></li>
-                  <li class="d-flex align-items-center"><i class="bi bi-chat-dots"></i> <a href="blog-single.html">12
-                      Comments</a></li>
-                </ul>
-              </div>
-
-              <div class="entry-content">
-                <p>
-                  Aspernatur rerum perferendis et sint. Voluptates cupiditate voluptas atque quae. Rem veritatis rerum
-                  enim et autem. Saepe atque cum eligendi eaque iste omnis a qui.
-                  Quia sed sunt. Ea asperiores expedita et et delectus voluptates rerum. Id saepe ut itaque quod qui
-                  voluptas nobis porro rerum. Quam quia nesciunt qui aut est non omnis. Inventore occaecati et quaerat
-                  magni itaque nam voluptas. Voluptatem ducimus sint id earum ut nesciunt sed corrupti nemo.
-                </p>
-                <div class="read-more">
-                  <a href="blog-single.html">Read More</a>
-                </div>
-              </div> -->
-
             </article><!-- End blog entry -->
-
-            <div class="blog-pagination">
-              <ul class="justify-content-center">
-                <li><a href="#">1</a></li>
-                <li class="active"><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-              </ul>
-            </div>
-
           </div><!-- End blog entries list -->
-
           <div class="col-lg-3">
             <div class="sidebar">
               <form action="/forecast" class="sidebar-item" method="get">
