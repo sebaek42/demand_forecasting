@@ -11,8 +11,48 @@ var drawChart = async function(processedData) {
     google.charts.load('current', {packages: ['corechart', 'bar', 'geochart']});
     google.charts.setOnLoadCallback(drawBarChart);
     google.charts.setOnLoadCallback(drawMapChart);
-
+    google.charts.setOnLoadCallback(drawPieChart);
+    google.charts.setOnLoadCallback(drawRowChart);
 }
+
+function drawRowChart() {
+    var data = new google.visualization.DataTable();
+    data.addColumn("String", "Country");
+    data.addColumn("number", "Passenger");
+    data.addRows(regionData.length);
+    for(var i = 0; i < regionChartData.length; ++i) {
+        data.setCell(i, 0, regionChartData[i].region);
+        data.setCell(i, 1, regionChartData[i].value);
+    }
+    var options = {
+        chart: {
+            title: regionChartData[0].date,
+        },
+        bars: 'horizontal'
+    };
+    var chart = new google.chart.Bar(document.getElementById("rowchart_values"));
+
+    chart.draw(data, google.charts.Bar.convertOptions(options));
+}
+
+function drawPieChart() {
+    var data = new google.visualization.DataTable();
+    data.addColumn("String", "Country");
+    data.addColumn("number", "Passenger");
+    data.addRows(regionData.length);
+    for(var i = 0; i < regionChartData.length; ++i) {
+        data.setCell(i, 0, regionChartData[i].region);
+        data.setCell(i, 1, regionChartData[i].value);
+    }
+    var options = {
+        title: regionChartData[0].date,
+        pieHole: 0.4,
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById("piechart_values"));
+    chart.draw(data, options);
+}
+
 function drawMapChart() {
     // Create and populate a data table
     var data = new google.visualization.DataTable();
@@ -49,7 +89,7 @@ function drawBarChart() {
         data.setCell(i, 0, colChartData[i].date);
         data.setCell(i, 1, colChartData[i].value);
     }
-    
+
     var view = new google.visualization.DataView(data);
     var options = {
         title: `Forecasted Passenger - Type: ${colChartData[0].type} / Region: ${colChartData[0].region}`,
@@ -111,7 +151,7 @@ function processData(params){
         var colChartData = getColChartData(data, params.regionRadios, params.typeRadios);
         var regionChartData = []
         for(var i=0;i<regions.length;i++){
-            regionChartData.push(getRegionChartData(data, regions[i], 
+            regionChartData.push(getRegionChartData(data, regions[i],
             params.typeRadios, params.dateIndex));
         }
         resolve([colChartData, regionChartData]);
