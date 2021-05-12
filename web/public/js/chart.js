@@ -4,10 +4,9 @@ var regions = ["Etc", "South East Asia", "North East Asia", "America", "Oceania"
 // 지도 파이 차트  /////// 바 차트 분리해야됨
 var regionChartData = [];
 var colChartData = [];
-var drawChart = async function(processedData) {
+var drawChart = function(processedData) {
     colChartData = processedData[0];
     regionChartData = processedData[1];
-    console.log(regionChartData);
     google.charts.load('current', {packages: ['corechart', 'bar', 'geochart']});
     google.charts.setOnLoadCallback(drawBarChart);
     google.charts.setOnLoadCallback(drawMapChart);
