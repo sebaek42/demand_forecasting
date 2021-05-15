@@ -18,7 +18,6 @@ router.get('/forecast', function(req, res){
                 data[i].value = parseInt(data[i].value*weights[data[i].region]);
                 weights[data[i].region] -= 0.015;
             }
-            console.log(data);
             resolve(data);
         })
     }).then(function(data){
@@ -97,4 +96,5 @@ function dangerToNumeric(items) {
     }
     tripDanger['total'] = parseFloat((sum / Object.keys(tripDanger).length).toFixed(2));
     return tripDanger;
+
 }

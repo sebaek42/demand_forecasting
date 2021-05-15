@@ -26,14 +26,13 @@ def main():
     passenger_df = load_passenger_data()
     region_arrive_df, region_total_df, region_departure_df = load_region_data()
 
+    temp = []
     # 인천 국제 공항 출발, 도착, 총계 예측
-    # print('Predict non-region passenger')
-    # for _type in passenger_df.columns:
-    #     predict = em.fit_model_and_predict(passenger_df[_type], exog_df, exog_origin_df)
-    #     _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-    #     save_data(predict, _date, _type)
-    #     print('Data inserted')
-
+    print('Predict non-region passenger')
+    for _type in passenger_df.columns:
+        predict = em.fit_model_and_predict(passenger_df[_type], exog_df, exog_origin_df)
+        _date = [passenger_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
+        save_data(predict, _date, _type)
     # 지역별 인천 국제 공항 출발, 도착, 총계 예측
     print('Predict region passenger')
     for region_df, _type in zip([region_arrive_df, region_total_df, region_departure_df], ['arrive', 'total', 'departure']):
@@ -41,8 +40,7 @@ def main():
             print(f'{region} start!')
             predict = em.fit_model_and_predict(region_df[region], exog_df, exog_origin_df)
             _date = [region_df.index[-1] + relativedelta(months=i) for i in range(1, len(predict)+1)]
-            save_data(predict, _date, _type, region=region)
-            print('Data inserted')
+            # save_data(predict, _date, _type, region=region)
             print(f'{region} Done!')
     print('All Done!')
 
@@ -56,6 +54,7 @@ def save_data(predict, _date, _type, region='total'):
     data = list(zip( _date, predict, [_type]*len(predict), [region]*len(predict)))
     curs.executemany(insert_sql, data)
     con.commit()
+    print('Data inserted')
 
 def load_region_data():
     # 데이터 프레임 구성

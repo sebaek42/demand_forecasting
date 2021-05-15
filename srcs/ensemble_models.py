@@ -4,7 +4,6 @@ import statsmodels.api as sm
 from SARIMAX import Sarimax
 from CNN import Cnn
 from LSTM import Lstm
-from arch.bootstrap import MovingBlockBootstrap, CircularBlockBootstrap, StationaryBootstrap, optimal_block_length
 
 
 # Split data
@@ -36,5 +35,5 @@ def fit_model_and_predict(passenger, exog_norm, exog_org, ratio=0.8, n_periods=6
     for model in models:
         model.fit()
         pred.append(model.predict(n_periods=n_periods))
-    print(np.array(list(map(int , sum(pred) / 3))))
-    return np.array(list(map(int , sum(pred) / 3)))
+    print(np.array(list(map(int , sum(pred) / len(models)))))
+    return np.array(list(map(int , sum(pred) / len(models))))

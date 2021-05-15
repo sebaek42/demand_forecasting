@@ -7,6 +7,7 @@ var colChartData = [];
 var drawChart = function(processedData) {
     colChartData = processedData[0];
     regionChartData = processedData[1];
+
     google.charts.load('current', {packages: ['corechart', 'bar', 'geochart']});
     google.charts.setOnLoadCallback(drawBarChart);
     google.charts.setOnLoadCallback(drawMapChart);
@@ -113,7 +114,6 @@ function getColChartData(data, region, type){
 }
 
 function getRegionChartData(data, region, type, idx){
-    console.log(type);
     var returnData = []
     for(var i=0;i<data.length;i++){
         if(data[i].region === region && data[i].type === type){
@@ -155,4 +155,13 @@ function processData(params){
         }
         resolve([colChartData, regionChartData]);
     })
+}
+
+function getDates(data){
+    var dates = []
+    for(var i=0;i<data.length;i++){
+        dates.push(data[i].date);
+    }
+    dates.sort();
+    return dates;    
 }

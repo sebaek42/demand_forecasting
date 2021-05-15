@@ -117,7 +117,7 @@
           <div class="col-lg-3">
             <div class="sidebar">
               <form action="/forecast" class="sidebar-item" method="get">
-                <fieldset class="form-group">
+                <fieldset class="form-group region_radios">
                   <div class="row">
                     <legend class="sidebar-title">Region</legend>
                     <div class="col-sm-10">
@@ -127,68 +127,27 @@
                         <label class="form-check-label" for="regionRadios1">
                           전체
                         </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios2" value="Etc">
-                        <label class="form-check-label" for="regionRadios2">
-                          Etc
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios3"
-                          value="South East Asia">
-                        <label class="form-check-label" for="regionRadios3">
-                          South East Asia
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios4"
-                          value="North East Asia">
-                        <label class="form-check-label" for="regionRadios4">
-                          North East Asia
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios5"
-                          value="America">
-                        <label class="form-check-label" for="regionRadios5">
-                          America
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios6"
-                          value="Oceania">
-                        <label class="form-check-label" for="regionRadios6">
-                          Oceania
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios7"
-                          value="Europe">
-                        <label class="form-check-label" for="regionRadios7">
-                          Europe
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios8"
-                          value="Japan">
-                        <label class="form-check-label" for="regionRadios8">
-                          Japan
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios9"
-                          value="China">
-                        <label class="form-check-label" for="regionRadios9">
-                          China
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="regionRadios" id="regionRadios10"
-                          value="Middle East">
-                        <label class="form-check-label" for="regionRadios10">
-                          Middle East
-                        </label>
+                        <script>
+                          const region_radios = document.querySelector('.region_radios > div > div');
+                          for(var i=0;i<regions.length;i++){
+                            var div = document.createElement('div');
+                            var input = document.createElement('input');
+                            var label = document.createElement('label');
+    
+                            div.classList.add('form-check');
+                            input.classList.add('form-check-input');
+                            input.type = 'radio';
+                            input.name = 'regionRadios';
+                            input.id = 'regionRadios1';
+                            input.value = regions[i];
+                            label.classList.add('form-check-label');
+                            label.for = `regionRadios${i+1}`;
+                            label.innerText = regions[i];
+                            div.appendChild(input);
+                            div.appendChild(label);
+                            region_radios.appendChild(div);
+                          }
+                        </script>
                       </div>
                     </div>
                   </div>
@@ -224,12 +183,18 @@
                   <div class="row">
                     <legend class="sidebar-title">Date</legend>
                     <div class="col-sm-10">
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="" id="typeRadios1" value="total" checked>
-                        <label class="form-check-label" for="typeRadios1">
-                          전체
-                        </label>
-                      </div>
+                      <select id="dates" name="dateIndex" class="date_select form-select">
+                        <script>
+                          var dates = getDates(colChartData);
+                          var select = document.querySelector(".date_select");
+                          for(var i=0;i<dates.length;i++){
+                            var option = document.createElement('option');
+                            option.value = i;
+                            option.innerText = dates[i];
+                            select.appendChild(option);
+                          }
+                        </script>
+                      </select>
                     </div>
                     <div class="form-group row" style="margin-top: 30px;">
                       <div class="col-sm-10">

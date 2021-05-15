@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pmdarima as pm
-from arch.bootstrap import MovingBlockBootstrap, optimal_block_length
 
 class Sarimax:
     def __init__(self, train_data, test_data, train_exog, test_exog):
@@ -11,6 +10,22 @@ class Sarimax:
         self.train_exog = train_exog
         self.test_exog = test_exog
     
+        self.train_exog['train_data_shifted_1'] = self.shift(train_data, 1)
+        
+        test_data_shifted_1 = self.shift(test_data, 1)
+        test_data_shifted_1[0] = train_data[-1]
+        self.test_exog['test_data_shifted_1'] = test_data_shifted_1
+    
+    def shift(self, xs, n):
+        e = np.empty_like(xs)
+        if n >= 0:
+            e[:n] = np.zeros(shape=(abs(n), 1))
+            e[n:] = xs[:-n]
+        else:
+            e[n:] = np.zeros(shape=(abs(n), 1))
+            e[:n] = xs[-n:]
+        return np.array(e)
+
     def auto_sarimax(self):
         # 데이터에 따른 최적 AR, MA의 차수 및 계절 차수 구함
         model = pm.auto_arima(self.train_data, self.train_exog, seasonal=True, m=12, d=1,
@@ -20,7 +35,6 @@ class Sarimax:
         # self.print_result(pred, self.test_data)
 
         return model
-
 
     def update_model(self, model):
         pred = []
@@ -59,7 +73,10 @@ class Sarimax:
 
     # 최대 1년
     def predict(self, n_periods=6):
-        pred_exog = self.test_exog.iloc[len(self.test_exog)-n_periods:]
-        pred = self.model.predict(n_periods=n_periods, X=pred_exog)
+        pred_exog = self.test_exog.iloc[-n_periods:]
+        pred = []
+        for i in range(n_periods):
+            yhat = self.model.predict(n_periods=1, X=pred_exog.iloc[i].to_frame().transpose())
+            pred.append(yhat)
         print("SARIMAX Done!")
-        return pred
+        return np.array(pred)
